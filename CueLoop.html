@@ -7,6 +7,17 @@
 <meta name="description" content="CueLoop is a browser-based rehearsal tool for mapping choreography to music, slowing sections, and looping transitions.">
 <title>CueLoop Offline — Map movement to music</title>
 <style>
+  .site-footer {
+  text-align: center;
+  padding: 28px 20px;
+  margin-top: 30px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.site-footer strong {
+  color: var(--text);
+}
 :root{--bg:#110f17;--panel:#1c1826;--text:#f6f0ff;--muted:#b8adc9;--accent:#f4b942;--accent2:#9f67ff;--danger:#ff7657;--border:#3a2e4e}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -316,7 +327,10 @@ $('importProject').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;t
 
 ['projectName','songTitle','artistName','bpm','firstBeat'].forEach(id=>$(id).addEventListener('change',pullInputs));
 loadSaved();pushInputs();render();update();
-
+<footer class="site-footer">
+  <strong>CueLoop</strong> · Created &amp; designed by Erin H. Courville ·
+  Developed with ChatGPT by OpenAI · Open source under the MIT License
+</footer>
 </script>
 </body>
 </html>
