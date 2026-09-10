@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#17131f">
+<meta name="description" content="CueLoop is a browser-based rehearsal tool for mapping choreography to music, slowing sections, and looping transitions.">
+<title>CueLoop — Map movement to music</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brandmark" aria-hidden="true">
+        <span class="ring ring1"></span>
+        <span class="ring ring2"></span>
+        <span class="dot"></span>
+      </div>
+      <div>
+        <div class="brandname">CueLoop</div>
+        <div class="tagline">Map movement to music.</div>
+      </div>
+    </div>
+    <a class="aboutLink" href="#about">About</a>
+  </header>
+
+  <section class="landing card">
+    <div class="landing-copy">
+      <div class="eyebrow">Rehearsal, simplified</div>
+      <h1>Build your choreography map while the music plays.</h1>
+      <p>
+        CueLoop helps aerialists, dancers, circus performers, and other movement artists
+        mark exact moments in a song, rehearse transitions, slow difficult sections, and
+        loop them until they feel right.
+      </p>
+      <div class="landing-actions">
+        <label class="fileButton primary large" for="audioFile">Choose your song</label>
+        <span class="privacy">🔒 Audio stays on your device</span>
+      </div>
+    </div>
+    <div class="mini-demo" aria-label="Example rehearsal cue display">
+      <div class="mini-label">CURRENT CUE</div>
+      <div class="mini-cue">Hip Hang</div>
+      <div class="mini-note">Open chest • look out • hold for the lyric</div>
+      <div class="mini-next"><b>UP NEXT:</b> Forward Balance</div>
+    </div>
+  </section>
+
+  <section class="card project-card">
+    <div class="sectionHeading">
+      <div>
+        <div class="eyebrow">Your project</div>
+        <h2>Rehearsal setup</h2>
+      </div>
+    </div>
+
+    <div class="project-grid">
+      <div><label for="projectName">Project name</label><input id="projectName" placeholder="e.g. Fall showcase"></div>
+      <div><label for="songTitle">Song title</label><input id="songTitle" placeholder="Song title"></div>
+      <div><label for="artistName">Artist</label><input id="artistName" placeholder="Artist"></div>
+    </div>
+
+    <div class="controls">
+      <label class="fileButton" for="audioFile">Choose / change song</label>
+      <input id="audioFile" type="file" accept="audio/*">
+      <button id="newProject">New project</button>
+      <button id="exportProject" class="primary">Export project</button>
+      <label class="fileButton" for="importProject">Import project</label>
+      <input id="importProject" type="file" accept=".json,application/json">
+    </div>
+    <div class="status" id="projectStatus">No song loaded yet.</div>
+  </section>
+
+  <div class="grid">
+    <main>
+      <section class="card now">
+        <div class="eyebrow">Current choreography cue</div>
+        <div id="currentCue" class="currentCue">START</div>
+        <div id="currentDetail" class="currentDetail">Load a song and begin mapping.</div>
+        <div class="metrics">
+          <div class="metric"><span id="timeNow">0:00.0</span><small>song time</small></div>
+          <div class="metric"><span id="countNow">—</span><small>count</small></div>
+          <div class="metric"><span id="phraseNow">—</span><small>8-count #</small></div>
+        </div>
+        <div class="next"><b>UP NEXT:</b> <span id="nextCue">—</span></div>
+      </section>
+
+      <section class="card">
+        <audio id="audio" controls preload="metadata"></audio>
+        <div class="progress"><div class="bar" id="bar"></div></div>
+
+        <div class="controls">
+          <button id="back10">↶ 10 sec</button>
+          <button id="back5">↶ 5 sec</button>
+          <button id="playPause" class="primary">▶ Play / Pause</button>
+          <button id="fwd5">5 sec ↷</button>
+          <button id="restartCue">↺ Current cue</button>
+        </div>
+
+        <div class="sliderrow">
+          <label for="speed">Speed</label>
+          <input id="speed" type="range" min=".5" max="1.25" step=".05" value="1">
+          <span id="speedLabel">1.00×</span>
+        </div>
+
+        <div class="sliderrow">
+          <label for="volume">Volume</label>
+          <input id="volume" type="range" min="0" max="1" step=".05" value="1">
+          <span id="volLabel">100%</span>
+        </div>
+
+        <details>
+          <summary>Count calibration</summary>
+          <p class="tip">Optional. Enter BPM and set the first beat to show a live count. For slow songs, use double-time BPM if that is how you count choreography.</p>
+          <div class="cal-grid">
+            <div><label for="bpm">BPM</label><input id="bpm" type="number" min="20" max="300" step=".1" value="120"></div>
+            <div><label for="firstBeat">First beat (seconds)</label><input id="firstBeat" type="number" min="0" step=".01" value="0"></div>
+          </div>
+          <div class="controls"><button id="setFirstBeat">Set first beat to current time</button></div>
+        </details>
+
+        <div class="controls">
+          <button id="setA">Set Loop A</button>
+          <button id="setB">Set Loop B</button>
+          <button id="toggleLoop" class="danger">Loop OFF</button>
+          <button id="clearLoop">Clear loop</button>
+        </div>
+        <div class="status" id="loopStatus">No loop selected.</div>
+      </section>
+    </main>
+
+    <aside class="card">
+      <div class="sectionHeading">
+        <div>
+          <div class="eyebrow">Choreography</div>
+          <h2>Cue map</h2>
+        </div>
+      </div>
+
+      <div class="addForm">
+        <div class="row2">
+          <div><label for="newTime">Time</label><input id="newTime" placeholder="e.g. 1:23.5"></div>
+          <div><label for="newName">Move / cue</label><input id="newName" placeholder="e.g. Hip hang"></div>
+        </div>
+        <label for="newDetail">Notes / transition</label>
+        <textarea id="newDetail" placeholder="Hand placement, lyric cue, performance note, transition, etc."></textarea>
+        <div class="controls">
+          <button id="useCurrentTime">Use current song time</button>
+          <button id="addCue" class="primary">+ Add cue</button>
+        </div>
+      </div>
+      <div id="cueList" class="cueList"></div>
+      <p class="tip">Edits save automatically in this browser. Use Export Project for a portable backup.</p>
+    </aside>
+  </div>
+
+  <section id="about" class="card about">
+    <div class="eyebrow">About CueLoop</div>
+    <h2>Built for rehearsing movement, not managing music files.</h2>
+    <p>
+      CueLoop is intentionally lightweight. Your song is loaded locally in your browser and is not uploaded
+      by the app. Project exports save your cue names, notes, timestamps, BPM, and first-beat setting, but do
+      not include the audio itself.
+    </p>
+    <div class="featureGrid">
+      <div><b>Map</b><span>Add exact choreography cues while your song plays.</span></div>
+      <div><b>Drill</b><span>Slow playback and loop difficult transitions.</span></div>
+      <div><b>Count</b><span>Optionally calibrate BPM for a live 1–8 display.</span></div>
+      <div><b>Back up</b><span>Export a tiny project file and import it later.</span></div>
+    </div>
+  </section>
+
+  <footer>
+    <span>CueLoop</span>
+    <span>•</span>
+    <span>Browser-based rehearsal mapping</span>
+  </footer>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
