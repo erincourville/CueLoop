@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#17131f">
+<meta name="description" content="CueLoop is a browser-based rehearsal tool for mapping choreography to music, slowing sections, and looping transitions.">
+<title>CueLoop Offline — Map movement to music</title>
+<style>
+:root{--bg:#110f17;--panel:#1c1826;--text:#f6f0ff;--muted:#b8adc9;--accent:#f4b942;--accent2:#9f67ff;--danger:#ff7657;--border:#3a2e4e}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(circle at top right,#24143a 0,#100d16 32%,#181020 68%,#0f0d13 100%);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.wrap{max-width:1100px;margin:auto;padding:20px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
+.brand{display:flex;align-items:center;gap:12px}
+.brandmark{width:46px;height:46px;position:relative}
+.ring{position:absolute;border:3px solid var(--accent2);border-radius:50%}
+.ring1{width:34px;height:34px;left:0;top:6px}
+.ring2{width:26px;height:26px;right:0;top:1px;border-color:var(--accent)}
+.dot{position:absolute;width:8px;height:8px;background:var(--danger);border-radius:50%;right:4px;bottom:4px}
+.brandname{font-weight:900;font-size:25px;letter-spacing:-.03em}
+.tagline{font-size:12px;color:var(--muted)}
+.aboutLink{color:var(--text);text-decoration:none;background:#241d31;border:1px solid var(--border);padding:9px 12px;border-radius:999px}
+.card{background:rgba(28,24,38,.96);border:1px solid var(--border);border-radius:18px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.24)}
+.landing{display:grid;grid-template-columns:1.25fr .75fr;gap:24px;align-items:center;padding:26px;margin-bottom:16px;background:linear-gradient(135deg,rgba(42,26,52,.98),rgba(24,19,31,.98))}
+.landing h1{font-size:clamp(34px,6vw,64px);line-height:.98;letter-spacing:-.04em;margin:8px 0 14px;max-width:760px}
+.landing p{font-size:18px;line-height:1.55;color:#e7ddf1;max-width:760px}
+.landing-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:20px}
+.large{padding:13px 17px}
+.mini-demo{background:#17131f;border:1px solid #4c3567;border-radius:18px;padding:18px;transform:rotate(1deg);box-shadow:0 16px 40px rgba(0,0,0,.25)}
+.mini-label{font-size:11px;letter-spacing:.13em;color:var(--accent)}
+.mini-cue{font-size:36px;font-weight:900;margin:8px 0}
+.mini-note{color:#ddd2e9;font-size:14px}
+.mini-next{margin-top:18px;padding-top:12px;border-top:1px solid #382a49;color:var(--muted);font-size:13px}
+.privacy{font-size:13px;color:var(--accent);white-space:nowrap}
+.project-card{margin-bottom:16px}
+.sectionHeading h2{margin:2px 0 12px}
+.project-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}
+.now{background:linear-gradient(135deg,#2a1a34,#211827);border-color:#664190;margin-bottom:16px}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:12px;color:var(--accent)}
+.currentCue{font-size:clamp(30px,6vw,58px);font-weight:800;line-height:1.02;margin:7px 0 10px}
+.currentDetail{font-size:18px;color:#e7ddf1;min-height:48px}
+.metrics{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}
+.metric{flex:1;min-width:120px;background:#17131f;border-radius:14px;padding:12px}
+.metric span{display:block;font-size:30px;font-weight:800}
+.metric small{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.next{margin-top:12px;padding:12px;border-left:4px solid var(--accent2);background:#17131f;border-radius:8px}
+audio{width:100%;margin:10px 0 8px}
+button,input,textarea{font:inherit}
+input,textarea{width:100%;background:#0f0d14;color:var(--text);border:1px solid var(--border);border-radius:9px;padding:9px}
+textarea{min-height:74px;resize:vertical}
+button,.fileButton{border:0;border-radius:11px;padding:10px 13px;background:#332743;color:white;cursor:pointer;display:inline-block}
+button:hover,.fileButton:hover{filter:brightness(1.12)}
+.primary{background:var(--accent2);font-weight:700}.danger{background:var(--danger);font-weight:700}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+input[type=file]{display:none}
+.sliderrow{display:grid;grid-template-columns:90px 1fr 60px;gap:10px;align-items:center;margin:10px 0}
+.progress{height:12px;background:#0f0d14;border-radius:999px;overflow:hidden;margin:10px 0}
+.bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent2),var(--accent))}
+.status{font-size:13px;color:var(--accent);min-height:18px}.tip{font-size:13px;color:var(--muted)}
+.addForm{background:#17131f;border:1px solid #332941;border-radius:12px;padding:12px;margin-bottom:12px}
+.row2,.cal-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cueList{display:flex;flex-direction:column;gap:8px;max-height:720px;overflow:auto;padding-right:3px}
+.cue{background:#17131f;border:1px solid #332941;border-radius:12px;padding:10px}
+.cue.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.cueTop{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.cueTime{width:72px;color:var(--accent);font-variant-numeric:tabular-nums;font-weight:700}
+.cueName{flex:1;min-width:120px;font-weight:750}.cueDetail{font-size:13px;color:var(--muted);margin:5px 0 0 80px}.small{font-size:12px;padding:7px 9px}
+label{font-size:13px;color:var(--muted)}summary{cursor:pointer;font-weight:700;margin:10px 0}
+.about{margin-top:16px;padding:24px}
+.about h2{font-size:clamp(24px,4vw,38px);margin:7px 0 10px}
+.about>p{color:#ded4e9;max-width:850px;line-height:1.6}
+.featureGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
+.featureGrid div{background:#17131f;border:1px solid #332941;border-radius:14px;padding:14px}
+.featureGrid b{display:block;color:var(--accent);margin-bottom:5px}
+.featureGrid span{font-size:13px;color:var(--muted);line-height:1.45}
+footer{display:flex;gap:10px;justify-content:center;color:#887d98;font-size:12px;padding:24px 0 10px}
+@media(max-width:840px){.grid,.landing{grid-template-columns:1fr}.mini-demo{transform:none}.featureGrid{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.project-grid{grid-template-columns:1fr}.topbar{align-items:flex-start}}
+@media(max-width:540px){.row2,.cal-grid,.featureGrid{grid-template-columns:1fr}.landing{padding:19px}.wrap{padding:12px}}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brandmark" aria-hidden="true">
+        <span class="ring ring1"></span>
+        <span class="ring ring2"></span>
+        <span class="dot"></span>
+      </div>
+      <div>
+        <div class="brandname">CueLoop</div>
+        <div class="tagline">Map movement to music. • Offline Edition</div>
+      </div>
+    </div>
+    <a class="aboutLink" href="#about">About</a>
+  </header>
+
+  <section class="landing card">
+    <div class="landing-copy">
+      <div class="eyebrow">Rehearsal, simplified</div>
+      <h1>Build your choreography map while the music plays.</h1>
+      <p>
+        CueLoop helps aerialists, dancers, circus performers, and other movement artists
+        mark exact moments in a song, rehearse transitions, slow difficult sections, and
+        loop them until they feel right.
+      </p>
+      <div class="landing-actions">
+        <label class="fileButton primary large" for="audioFile">Choose your song</label>
+        <span class="privacy">🔒 Audio stays on your device</span>
+      </div>
+    </div>
+    <div class="mini-demo" aria-label="Example rehearsal cue display">
+      <div class="mini-label">CURRENT CUE</div>
+      <div class="mini-cue">Hip Hang</div>
+      <div class="mini-note">Open chest • look out • hold for the lyric</div>
+      <div class="mini-next"><b>UP NEXT:</b> Forward Balance</div>
+    </div>
+  </section>
+
+  <section class="card project-card">
+    <div class="sectionHeading">
+      <div>
+        <div class="eyebrow">Your project</div>
+        <h2>Rehearsal setup</h2>
+      </div>
+    </div>
+
+    <div class="project-grid">
+      <div><label for="projectName">Project name</label><input id="projectName" placeholder="e.g. Fall showcase"></div>
+      <div><label for="songTitle">Song title</label><input id="songTitle" placeholder="Song title"></div>
+      <div><label for="artistName">Artist</label><input id="artistName" placeholder="Artist"></div>
+    </div>
+
+    <div class="controls">
+      <label class="fileButton" for="audioFile">Choose / change song</label>
+      <input id="audioFile" type="file" accept="audio/*">
+      <button id="newProject">New project</button>
+      <button id="exportProject" class="primary">Export project</button>
+      <label class="fileButton" for="importProject">Import project</label>
+      <input id="importProject" type="file" accept=".json,application/json">
+    </div>
+    <div class="status" id="projectStatus">No song loaded yet.</div>
+  </section>
+
+  <div class="grid">
+    <main>
+      <section class="card now">
+        <div class="eyebrow">Current choreography cue</div>
+        <div id="currentCue" class="currentCue">START</div>
+        <div id="currentDetail" class="currentDetail">Load a song and begin mapping.</div>
+        <div class="metrics">
+          <div class="metric"><span id="timeNow">0:00.0</span><small>song time</small></div>
+          <div class="metric"><span id="countNow">—</span><small>count</small></div>
+          <div class="metric"><span id="phraseNow">—</span><small>8-count #</small></div>
+        </div>
+        <div class="next"><b>UP NEXT:</b> <span id="nextCue">—</span></div>
+      </section>
+
+      <section class="card">
+        <audio id="audio" controls preload="metadata"></audio>
+        <div class="progress"><div class="bar" id="bar"></div></div>
+
+        <div class="controls">
+          <button id="back10">↶ 10 sec</button>
+          <button id="back5">↶ 5 sec</button>
+          <button id="playPause" class="primary">▶ Play / Pause</button>
+          <button id="fwd5">5 sec ↷</button>
+          <button id="restartCue">↺ Current cue</button>
+        </div>
+
+        <div class="sliderrow">
+          <label for="speed">Speed</label>
+          <input id="speed" type="range" min=".5" max="1.25" step=".05" value="1">
+          <span id="speedLabel">1.00×</span>
+        </div>
+
+        <div class="sliderrow">
+          <label for="volume">Volume</label>
+          <input id="volume" type="range" min="0" max="1" step=".05" value="1">
+          <span id="volLabel">100%</span>
+        </div>
+
+        <details>
+          <summary>Count calibration</summary>
+          <p class="tip">Optional. Enter BPM and set the first beat to show a live count. For slow songs, use double-time BPM if that is how you count choreography.</p>
+          <div class="cal-grid">
+            <div><label for="bpm">BPM</label><input id="bpm" type="number" min="20" max="300" step=".1" value="120"></div>
+            <div><label for="firstBeat">First beat (seconds)</label><input id="firstBeat" type="number" min="0" step=".01" value="0"></div>
+          </div>
+          <div class="controls"><button id="setFirstBeat">Set first beat to current time</button></div>
+        </details>
+
+        <div class="controls">
+          <button id="setA">Set Loop A</button>
+          <button id="setB">Set Loop B</button>
+          <button id="toggleLoop" class="danger">Loop OFF</button>
+          <button id="clearLoop">Clear loop</button>
+        </div>
+        <div class="status" id="loopStatus">No loop selected.</div>
+      </section>
+    </main>
+
+    <aside class="card">
+      <div class="sectionHeading">
+        <div>
+          <div class="eyebrow">Choreography</div>
+          <h2>Cue map</h2>
+        </div>
+      </div>
+
+      <div class="addForm">
+        <div class="row2">
+          <div><label for="newTime">Time</label><input id="newTime" placeholder="e.g. 1:23.5"></div>
+          <div><label for="newName">Move / cue</label><input id="newName" placeholder="e.g. Hip hang"></div>
+        </div>
+        <label for="newDetail">Notes / transition</label>
+        <textarea id="newDetail" placeholder="Hand placement, lyric cue, performance note, transition, etc."></textarea>
+        <div class="controls">
+          <button id="useCurrentTime">Use current song time</button>
+          <button id="addCue" class="primary">+ Add cue</button>
+        </div>
+      </div>
+      <div id="cueList" class="cueList"></div>
+      <p class="tip">Edits save automatically in this browser. Use Export Project for a portable backup.</p>
+    </aside>
+  </div>
+
+  <section id="about" class="card about">
+    <div class="eyebrow">About CueLoop</div>
+    <h2>Built for rehearsing movement, not managing music files.</h2>
+    <p>
+      CueLoop is intentionally lightweight. Your song is loaded locally in your browser and is not uploaded
+      by the app. Project exports save your cue names, notes, timestamps, BPM, and first-beat setting, but do
+      not include the audio itself.
+    </p>
+    <div class="featureGrid">
+      <div><b>Map</b><span>Add exact choreography cues while your song plays.</span></div>
+      <div><b>Drill</b><span>Slow playback and loop difficult transitions.</span></div>
+      <div><b>Count</b><span>Optionally calibrate BPM for a live 1–8 display.</span></div>
+      <div><b>Back up</b><span>Export a tiny project file and import it later.</span></div>
+    </div>
+  </section>
+
+  <footer>
+    <span>CueLoop</span>
+    <span>•</span>
+    <span>Browser-based rehearsal mapping</span>
+  </footer>
+</div>
+
+<script>
+/* Rehearsal Mapper: browser-only choreography rehearsal tool */
+const STORAGE_KEY='cueLoopProjectV1';
+const state={projectName:'',songTitle:'',artistName:'',bpm:120,firstBeat:0,cues:[{t:0,name:'START',detail:'Add your first choreography cue.'}]};
+const $=id=>document.getElementById(id);
+const audio=$('audio'),cueList=$('cueList'),bar=$('bar');
+let audioObjectUrl=null,loopA=null,loopB=null,loopOn=false;
+
+function fmt(t){t=Math.max(0,Number(t)||0);const m=Math.floor(t/60),s=t-m*60;return `${m}:${s.toFixed(1).padStart(4,'0')}`}
+function parseTime(v){v=(v||'').trim();if(!v)return null;if(v.includes(':')){const [m,s]=v.split(':').map(Number);return Number.isFinite(m)&&Number.isFinite(s)?m*60+s:null}const n=Number(v);return Number.isFinite(n)?n:null}
+function esc(s=''){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function activeIndex(t){if(!state.cues.length)return-1;let idx=0;for(let i=0;i<state.cues.length;i++)if(t>=state.cues[i].t)idx=i;return idx}
+function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}
+function pullInputs(){state.projectName=$('projectName').value.trim();state.songTitle=$('songTitle').value.trim();state.artistName=$('artistName').value.trim();state.bpm=Number($('bpm').value)||120;state.firstBeat=Number($('firstBeat').value)||0;save()}
+function pushInputs(){$('projectName').value=state.projectName||'';$('songTitle').value=state.songTitle||'';$('artistName').value=state.artistName||'';$('bpm').value=state.bpm||120;$('firstBeat').value=state.firstBeat||0}
+function loadSaved(){try{const s=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(!s)return;Object.assign(state,s);if(!Array.isArray(state.cues)||!state.cues.length)state.cues=[{t:0,name:'START',detail:'Add your first choreography cue.'}]}catch(e){}}
+
+function render(){
+  cueList.innerHTML='';
+  state.cues.forEach((c,i)=>{
+    const el=document.createElement('div');el.className='cue';el.dataset.i=i;
+    el.innerHTML=`<div class="cueTop"><div class="cueTime">${fmt(c.t)}</div><div class="cueName">${esc(c.name)}</div><button class="small jump">Jump</button><button class="small set">Set here</button><button class="small edit">Edit</button><button class="small del">Delete</button></div><div class="cueDetail">${esc(c.detail||'')}</div>`;
+    el.querySelector('.jump').onclick=()=>audio.currentTime=c.t;
+    el.querySelector('.set').onclick=()=>{state.cues[i].t=audio.currentTime;state.cues.sort((a,b)=>a.t-b.t);save();render()};
+    el.querySelector('.edit').onclick=()=>{const n=prompt('Move/cue name:',state.cues[i].name);if(n===null)return;const d=prompt('Notes/transition:',state.cues[i].detail||'');if(d===null)return;state.cues[i].name=n.trim()||state.cues[i].name;state.cues[i].detail=d.trim();save();render()};
+    el.querySelector('.del').onclick=()=>{if(confirm(`Delete "${state.cues[i].name}"?`)){state.cues.splice(i,1);if(!state.cues.length)state.cues.push({t:0,name:'START',detail:'Add your first choreography cue.'});save();render()}};
+    cueList.appendChild(el);
+  });
+}
+
+function update(){
+  const t=audio.currentTime||0;$('timeNow').textContent=fmt(t);
+  bar.style.width=Number.isFinite(audio.duration)&&audio.duration>0?`${t/audio.duration*100}%`:'0%';
+  const idx=activeIndex(t),c=idx>=0?state.cues[idx]:null;
+  $('currentCue').textContent=c?.name||'—';$('currentDetail').textContent=c?.detail||'';$('nextCue').textContent=state.cues[idx+1]?.name||'FINISH / HOLD';
+  document.querySelectorAll('.cue').forEach((el,i)=>el.classList.toggle('active',i===idx));
+  const bpm=Number(state.bpm)||0,fb=Number(state.firstBeat)||0;
+  if(bpm>0&&t>=fb){const bi=Math.floor((t-fb)/(60/bpm));$('countNow').textContent=bi%8+1;$('phraseNow').textContent=Math.floor(bi/8)+1}else{$('countNow').textContent='—';$('phraseNow').textContent='—'}
+  if(loopOn&&loopA!==null&&loopB!==null&&t>=loopB){audio.currentTime=loopA;audio.play()}
+  requestAnimationFrame(update);
+}
+
+$('audioFile').onchange=e=>{const f=e.target.files?.[0];if(!f)return;if(audioObjectUrl)URL.revokeObjectURL(audioObjectUrl);audioObjectUrl=URL.createObjectURL(f);audio.src=audioObjectUrl;audio.load();if(!state.songTitle){state.songTitle=f.name.replace(/\.[^.]+$/,'');$('songTitle').value=state.songTitle}$('projectStatus').textContent=`Loaded locally: ${f.name}`;save()};
+$('newProject').onclick=()=>{if(confirm('Start a new blank project? Export first if you want a backup.')){Object.assign(state,{projectName:'',songTitle:'',artistName:'',bpm:120,firstBeat:0,cues:[{t:0,name:'START',detail:'Add your first choreography cue.'}]});if(audioObjectUrl)URL.revokeObjectURL(audioObjectUrl);audio.removeAttribute('src');audio.load();localStorage.removeItem(STORAGE_KEY);pushInputs();render();$('projectStatus').textContent='New blank project created.'}};
+$('playPause').onclick=()=>audio.paused?audio.play():audio.pause();
+$('back10').onclick=()=>audio.currentTime=Math.max(0,audio.currentTime-10);$('back5').onclick=()=>audio.currentTime=Math.max(0,audio.currentTime-5);$('fwd5').onclick=()=>audio.currentTime=Math.min(audio.duration||999999,audio.currentTime+5);
+$('restartCue').onclick=()=>{const i=activeIndex(audio.currentTime);if(i>=0)audio.currentTime=state.cues[i].t};
+$('speed').oninput=e=>{audio.playbackRate=Number(e.target.value);$('speedLabel').textContent=Number(e.target.value).toFixed(2)+'×'};
+$('volume').oninput=e=>{audio.volume=Number(e.target.value);$('volLabel').textContent=Math.round(Number(e.target.value)*100)+'%'};
+$('setFirstBeat').onclick=()=>{state.firstBeat=audio.currentTime;$('firstBeat').value=state.firstBeat.toFixed(2);save()};
+function loopText(){$('loopStatus').textContent=`${loopA===null?'A: —':'A: '+fmt(loopA)} • ${loopB===null?'B: —':'B: '+fmt(loopB)}`}
+$('setA').onclick=()=>{loopA=audio.currentTime;if(loopB!==null&&loopB<=loopA)loopB=null;loopText()};
+$('setB').onclick=()=>{loopB=audio.currentTime;if(loopA!==null&&loopB<=loopA)loopA=null;loopText()};
+$('toggleLoop').onclick=e=>{if(loopA===null||loopB===null)return;loopOn=!loopOn;e.target.textContent=loopOn?'Loop ON':'Loop OFF'};
+$('clearLoop').onclick=()=>{loopA=loopB=null;loopOn=false;$('toggleLoop').textContent='Loop OFF';loopText()};
+$('useCurrentTime').onclick=()=>$('newTime').value=fmt(audio.currentTime);
+$('addCue').onclick=()=>{const t=parseTime($('newTime').value),name=$('newName').value.trim(),detail=$('newDetail').value.trim();if(t===null||!name){alert('Please enter a time and move/cue name.');return}state.cues.push({t,name,detail});state.cues.sort((a,b)=>a.t-b.t);save();render();$('newTime').value='';$('newName').value='';$('newDetail').value=''};
+
+$('exportProject').onclick=()=>{pullInputs();const payload={app:'Rehearsal Mapper',version:1,exportedAt:new Date().toISOString(),note:'Audio intentionally not included.',project:state};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');const name=(state.projectName||state.songTitle||'rehearsal-project').replace(/[^a-z0-9-_]+/gi,'-').replace(/^-+|-+$/g,'').toLowerCase();a.href=url;a.download=`${name||'rehearsal-project'}.json`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);$('projectStatus').textContent='Project backup exported. Audio is not included.'};
+
+$('importProject').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const p=JSON.parse(await f.text()),x=p.project||p;if(!x||!Array.isArray(x.cues))throw new Error();Object.assign(state,{projectName:x.projectName||'',songTitle:x.songTitle||'',artistName:x.artistName||'',bpm:Number(x.bpm)||120,firstBeat:Number(x.firstBeat)||0,cues:x.cues.filter(c=>c&&Number.isFinite(Number(c.t))&&typeof c.name==='string').map(c=>({t:Number(c.t),name:c.name,detail:typeof c.detail==='string'?c.detail:''})).sort((a,b)=>a.t-b.t)});if(!state.cues.length)state.cues=[{t:0,name:'START',detail:'Add your first choreography cue.'}];pushInputs();save();render();$('projectStatus').textContent=`Imported ${f.name}. Choose the matching song file.`}catch(err){alert('That file could not be imported as a Rehearsal Mapper project.')}finally{e.target.value=''}};
+
+['projectName','songTitle','artistName','bpm','firstBeat'].forEach(id=>$(id).addEventListener('change',pullInputs));
+loadSaved();pushInputs();render();update();
+
+</script>
+</body>
+</html>
