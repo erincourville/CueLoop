@@ -21,4 +21,4 @@ CueLoop does not upload the song file. Audio is loaded locally in the browser us
 
 Exported project files contain cue names, notes, timestamps, BPM, and first-beat settings, but **do not include the audio file**.
 
-Created by Erin H. Courville
+CueLoop was created and designed by Erin H. Courville to solve a problem she encountered while choreographing an aerial performance: keeping track of what comes next while rehearsing to music. CueLoop was developed using AI-assisted coding with ChatGPT.
