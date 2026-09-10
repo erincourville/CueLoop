@@ -77,3 +77,14 @@ footer{display:flex;gap:10px;justify-content:center;color:#887d98;font-size:12px
 .aboutDownload{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:18px 0 4px}
 .aboutDownload a{text-decoration:none}
 .aboutDownload span{font-size:13px;color:var(--muted)}
+.site-footer {
+  text-align: center;
+  padding: 28px 20px;
+  margin-top: 30px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.site-footer strong {
+  color: var(--text);
+}
