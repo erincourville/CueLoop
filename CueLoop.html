@@ -179,6 +179,7 @@ footer{display:flex;gap:10px;justify-content:center;color:#887d98;font-size:12px
           <button id="back10">↶ 10 sec</button>
           <button id="back5">↶ 5 sec</button>
           <button id="playPause" class="primary">▶ Play / Pause</button>
+          <button id="practiceMode"> Pratice Mode</button>
           <button id="fwd5">5 sec ↷</button>
           <button id="restartCue">↺ Current cue</button>
         </div>
@@ -262,7 +263,25 @@ footer{display:flex;gap:10px;justify-content:center;color:#887d98;font-size:12px
     <span>Browser-based rehearsal mapping</span>
   </footer>
 </div>
+<section id="practiceView" class="practiceView" aria-hidden="true">
+  <button id="exitPractice" class="exitPractice">✕ Exit Practice Mode</button>
 
+  <div class="practiceContent">
+    <div class="practiceLabel">CURRENT</div>
+    <div id="practiceCurrent" class="practiceCurrent">START</div>
+    <div id="practiceDetail" class="practiceDetail"></div>
+
+    <div class="practiceDivider"></div>
+
+    <div class="practiceLabel">UP NEXT</div>
+    <div id="practiceNext" class="practiceNext">—</div>
+  </div>
+
+  <div class="practiceBottom">
+    <span id="practiceTime">0:00.0</span>
+    <span>ESC to exit</span>
+  </div>
+</section>
 <script>
 /* Rehearsal Mapper: browser-only choreography rehearsal tool */
 const STORAGE_KEY='cueLoopProjectV1';
@@ -326,11 +345,12 @@ $('exportProject').onclick=()=>{pullInputs();const payload={app:'Rehearsal Mappe
 $('importProject').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const p=JSON.parse(await f.text()),x=p.project||p;if(!x||!Array.isArray(x.cues))throw new Error();Object.assign(state,{projectName:x.projectName||'',songTitle:x.songTitle||'',artistName:x.artistName||'',bpm:Number(x.bpm)||120,firstBeat:Number(x.firstBeat)||0,cues:x.cues.filter(c=>c&&Number.isFinite(Number(c.t))&&typeof c.name==='string').map(c=>({t:Number(c.t),name:c.name,detail:typeof c.detail==='string'?c.detail:''})).sort((a,b)=>a.t-b.t)});if(!state.cues.length)state.cues=[{t:0,name:'START',detail:'Add your first choreography cue.'}];pushInputs();save();render();$('projectStatus').textContent=`Imported ${f.name}. Choose the matching song file.`}catch(err){alert('That file could not be imported as a Rehearsal Mapper project.')}finally{e.target.value=''}};
 
 ['projectName','songTitle','artistName','bpm','firstBeat'].forEach(id=>$(id).addEventListener('change',pullInputs));
-loadSaved();pushInputs();render();update();
-<footer class="site-footer">
-  <strong>CueLoop</strong> · Created &amp; designed by Erin H. Courville and developed with ChatGPT by OpenAI for AI-Assisted Coding ·
-  Developed with ChatGPT by OpenAI · Open source under the MIT License
-</footer>
+loadsaved();pushInputs();render();update();
 </script>
+  <footer class="site-footer">
+    <strong>CueLoop</strong> - Created &amp; designed by Erin H. Courville - Developed with ChatGPT by OpenAI - Open source under MIT License
+  </footer>
+
 </body>
 </html>
+
