@@ -413,6 +413,7 @@ $('audioFile').onchange=e=>{const f=e.target.files?.[0];if(!f)return;if(audioObj
 $('newProject').onclick=()=>{if(confirm('Start a new blank project? Export first if you want a backup.')){Object.assign(state,{projectName:'',songTitle:'',artistName:'',bpm:120,firstBeat:0,cues:[{t:0,name:'START',detail:'Add your first choreography cue.'}]});if(audioObjectUrl)URL.revokeObjectURL(audioObjectUrl);audio.removeAttribute('src');audio.load();localStorage.removeItem(STORAGE_KEY);pushInputs();render();$('projectStatus').textContent='New blank project created.'}};
 $('playPause').onclick=()=>audio.paused?audio.play():audio.pause();
 function enterPracticeMode(){
+  updatePracticeMode();
   $('practiceView').classList.add('active');
   $('practiceView').setAttribute('aria-hidden','false');
   document.body.classList.add('practice-active');
@@ -434,6 +435,21 @@ function exitPracticeMode(){
 
 $('practiceMode').onclick=enterPracticeMode;
 $('exitPractice').onclick=exitPracticeMode;
+function updatePracticeMode(){
+  const t=audio.currentTime||0;
+  const idx=activeIndex(t);
+  const current=idx>=0?state.cues[idx]:null;
+  const next=state.cues[idx+1];
+
+  $('practiceCurrent').textContent=current?.name||'—';
+  $('practiceDetail').textContent=current?.detail||'';
+  $('practiceNext').textContent=next?.name||'FINISH / HOLD';
+  $('practiceTime').textContent=fmt(t);
+}
+
+audio.addEventListener('timeupdate',updatePracticeMode);
+audio.addEventListener('seeked',updatePracticeMode);
+audio.addEventListener('play',updatePracticeMode);
 
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape' && $('practiceView').classList.contains('active')){
