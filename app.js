@@ -32,6 +32,10 @@ function update(){
   bar.style.width=Number.isFinite(audio.duration)&&audio.duration>0?`${t/audio.duration*100}%`:'0%';
   const idx=activeIndex(t),c=idx>=0?state.cues[idx]:null;
   $('currentCue').textContent=c?.name||'—';$('currentDetail').textContent=c?.detail||'';$('nextCue').textContent=state.cues[idx+1]?.name||'FINISH / HOLD';
+  $('practiceCurrent').textContent=c?.name||'—';
+  $('practiceDetail').textContent=c?.detail||'';
+  $('practiceNext').textContent=state.cues[idx+1]?.name||'FINISH / HOLD';
+  $('practiceTime').textContent=fmt(t);
   document.querySelectorAll('.cue').forEach((el,i)=>el.classList.toggle('active',i===idx));
   const bpm=Number(state.bpm)||0,fb=Number(state.firstBeat)||0;
   if(bpm>0&&t>=fb){const bi=Math.floor((t-fb)/(60/bpm));$('countNow').textContent=bi%8+1;$('phraseNow').textContent=Math.floor(bi/8)+1}else{$('countNow').textContent='—';$('phraseNow').textContent='—'}
@@ -42,6 +46,34 @@ function update(){
 $('audioFile').onchange=e=>{const f=e.target.files?.[0];if(!f)return;if(audioObjectUrl)URL.revokeObjectURL(audioObjectUrl);audioObjectUrl=URL.createObjectURL(f);audio.src=audioObjectUrl;audio.load();if(!state.songTitle){state.songTitle=f.name.replace(/\.[^.]+$/,'');$('songTitle').value=state.songTitle}$('projectStatus').textContent=`Loaded locally: ${f.name}`;save()};
 $('newProject').onclick=()=>{if(confirm('Start a new blank project? Export first if you want a backup.')){Object.assign(state,{projectName:'',songTitle:'',artistName:'',bpm:120,firstBeat:0,cues:[{t:0,name:'START',detail:'Add your first choreography cue.'}]});if(audioObjectUrl)URL.revokeObjectURL(audioObjectUrl);audio.removeAttribute('src');audio.load();localStorage.removeItem(STORAGE_KEY);pushInputs();render();$('projectStatus').textContent='New blank project created.'}};
 $('playPause').onclick=()=>audio.paused?audio.play():audio.pause();
+function enterPracticeMode(){
+  $('practiceView').classList.add('active');
+  $('practiceView').setAttribute('aria-hidden','false');
+  document.body.classList.add('practice-active');
+
+  if(document.documentElement.requestFullscreen){
+    document.documentElement.requestFullscreen().catch(()=>{});
+  }
+}
+
+function exitPracticeMode(){
+  $('practiceView').classList.remove('active');
+  $('practiceView').setAttribute('aria-hidden','true');
+  document.body.classList.remove('practice-active');
+
+  if(document.fullscreenElement && document.exitFullscreen){
+    document.exitFullscreen().catch(()=>{});
+  }
+}
+
+$('practiceMode').onclick=enterPracticeMode;
+$('exitPractice').onclick=exitPracticeMode;
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape' && $('practiceView').classList.contains('active')){
+    exitPracticeMode();
+  }
+});
 $('back10').onclick=()=>audio.currentTime=Math.max(0,audio.currentTime-10);$('back5').onclick=()=>audio.currentTime=Math.max(0,audio.currentTime-5);$('fwd5').onclick=()=>audio.currentTime=Math.min(audio.duration||999999,audio.currentTime+5);
 $('restartCue').onclick=()=>{const i=activeIndex(audio.currentTime);if(i>=0)audio.currentTime=state.cues[i].t};
 $('speed').oninput=e=>{audio.playbackRate=Number(e.target.value);$('speedLabel').textContent=Number(e.target.value).toFixed(2)+'×'};
