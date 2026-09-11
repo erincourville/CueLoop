@@ -176,6 +176,74 @@ footer{display:flex;gap:10px;justify-content:center;color:#887d98;font-size:12px
 body.practice-active {
   overflow: hidden;
 }
+/* Desktop-style menu bar */
+.appMenuBar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 36px;
+  padding: 0 14px;
+  background: #0f0d13;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  z-index: 1000;
+}
+
+.appMenu {
+  position: relative;
+}
+
+.menuButton {
+  background: transparent;
+  border: 0;
+  padding: 6px 10px;
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.menuButton:hover {
+  background: rgba(255,255,255,.08);
+}
+
+.menuDropdown {
+  display: none;
+  position: absolute;
+  top: 32px;
+  left: 0;
+  min-width: 190px;
+  padding: 6px;
+  background: #19151f;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 12px 30px rgba(0,0,0,.35);
+}
+
+.menuDropdown.open {
+  display: block;
+}
+
+.menuDropdown button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  color: var(--text);
+  padding: 9px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.menuDropdown button:hover {
+  background: rgba(255,255,255,.08);
+}
+
+.menuSeparator {
+  height: 1px;
+  background: var(--border);
+  margin: 5px 4px;
+}
 </style>
 </head>
 <body>
@@ -497,6 +565,57 @@ $('exportProject').onclick=()=>{pullInputs();const payload={app:'Rehearsal Mappe
 $('importProject').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const p=JSON.parse(await f.text()),x=p.project||p;if(!x||!Array.isArray(x.cues))throw new Error();Object.assign(state,{projectName:x.projectName||'',songTitle:x.songTitle||'',artistName:x.artistName||'',bpm:Number(x.bpm)||120,firstBeat:Number(x.firstBeat)||0,cues:x.cues.filter(c=>c&&Number.isFinite(Number(c.t))&&typeof c.name==='string').map(c=>({t:Number(c.t),name:c.name,detail:typeof c.detail==='string'?c.detail:''})).sort((a,b)=>a.t-b.t)});if(!state.cues.length)state.cues=[{t:0,name:'START',detail:'Add your first choreography cue.'}];pushInputs();save();render();$('projectStatus').textContent=`Imported ${state.cues.length} cues from ${f.name}. Choose the matching song file.`}catch(err){alert('That file could not be imported as a CueLoop project.')}finally{e.target.value=''}};
 
 ['projectName','songTitle','artistName','bpm','firstBeat'].forEach(id=>$(id).addEventListener('change',pullInputs));
+// Desktop-style menus
+const fileMenuButton = $('fileMenuButton');
+const viewMenuButton = $('viewMenuButton');
+const fileMenu = $('fileMenu');
+const viewMenu = $('viewMenu');
+
+function closeMenus() {
+  fileMenu.classList.remove('open');
+  viewMenu.classList.remove('open');
+}
+
+fileMenuButton.onclick = (e) => {
+  e.stopPropagation();
+  const opening = !fileMenu.classList.contains('open');
+  closeMenus();
+  if (opening) fileMenu.classList.add('open');
+};
+
+viewMenuButton.onclick = (e) => {
+  e.stopPropagation();
+  const opening = !viewMenu.classList.contains('open');
+  closeMenus();
+  if (opening) viewMenu.classList.add('open');
+};
+
+document.addEventListener('click', closeMenus);
+
+$('menuNewProject').onclick = () => {
+  closeMenus();
+  $('newProject').click();
+};
+
+$('menuOpenProject').onclick = () => {
+  closeMenus();
+  $('importProject').click();
+};
+
+$('menuOpenSong').onclick = () => {
+  closeMenus();
+  $('audioFile').click();
+};
+
+$('menuSaveProject').onclick = () => {
+  closeMenus();
+  $('exportProject').click();
+};
+
+$('menuPracticeMode').onclick = () => {
+  closeMenus();
+  enterPracticeMode();
+};
 loadSaved();pushInputs();render();update();
 </script>
   <footer class="site-footer">
